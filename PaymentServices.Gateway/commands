@@ -1,5 +1,101 @@
-account-resolutionstate = 'AccountResolutionPending'
-kyc-checkstate = 'KycPending'
-tms-checkstate = 'TmsPending'
-transferstate = 'TmsCompleted'
-event-notificationstate = 'TransferCompleted' OR state = 'AccountResolutionFailed' OR state = 'KycFailed' OR state = 'KycManualReview' OR state = 'TmsComplianceAlert' OR state = 'TmsFailed' OR state = 'TransferFailed'
+using TptchService.Domain.Enums;
+using TptchService.Domain.ValueObjects;
+
+namespace TptchService.Domain.Entities;
+
+
+// Base cosmos entity — all domain objects share an Id
+public abstract class Entity
+{
+    public string Id { get; init; } = Guid.NewGuid().ToString();
+    public DateTime CreatedAt { get; init; } = DateTime.UtcNow;
+    public DateTime UpdatedAt { get; init; } = DateTime.UtcNow;
+}
+
+
+// Account  (maps to Mongoose Account / RemoteAccount)
+public class Account : Entity
+{
+    public AccountKind Kind { get; set; } = AccountKind.Standard;
+    public string AccountNumber { get; set; } = string.Empty;
+    public string? LedgerId { get; set; }
+    public List<string> OwnerIds { get; set; } = [];
+    public string? PlatformId { get; set; }
+}
+
+public class RemoteAccount : Entity
+{
+    public string AccountNumber { get; set; } = string.Empty;
+    public string FiAbaNumber { get; set; } = string.Empty;
+    public string FiName { get; set; } = string.Empty;
+    public AddressValue? FiAddress { get; set; }
+    public string? Nickname { get; set; }
+    public string? LedgerId { get; set; }
+    public List<string> OwnerIds { get; set; } = [];
+}
+
+
+// Customer (maps to Mongoose Customer discriminator of Entity)
+public class Customer : Entity
+{
+    public AccountName Name { get; set; } = null!;
+    public string? TaxId { get; set; }
+    public string? ParentId { get; set; }           // platform id
+    public List<string> AccountIds { get; set; } = [];
+    public List<string> RemoteAccountIds { get; set; } = [];
+}
+
+
+// Platform (maps to Mongoose Platform discriminator)
+public class Platform : Entity
+{
+    public string? FintechId { get; set; }
+    public List<string> CustomerIds { get; set; } = [];
+}
+
+
+// TchTransaction — the hourly-batched TCH send/receive record
+// (mirrors Mongoose TchTransaction)
+public class TchTransaction : Entity
+{
+    public List<string> AccountIds { get; set; } = [];
+    public List<string> AccountNumbers { get; set; } = [];
+    public string Effect { get; set; } = string.Empty;   // "Debit" | "Credit"
+    public decimal Sum { get; set; }
+    public string? PlatformId { get; set; }
+    public string Kind { get; set; } = "tptch.send";
+    public string Code { get; set; } = "19";
+    public bool Processed { get; set; }
+    public List<TchPayloadItem> Payload { get; set; } = [];
+}
+
+public class TchPayloadItem
+{
+    public string? IndividualName { get; set; }
+    public decimal Amount { get; set; }
+    public string TransactionCode { get; set; } = "21";
+    public string? Account { get; set; }
+    public string? GluId { get; set; }
+    public TraceInfo? Trace { get; set; }
+    public string? FboAccount { get; set; }
+    public string? EvolveId { get; set; }
+}
+
+
+// UnknownRequest — audit log document (mirrors Mongoose UnknownRequest)
+public class UnknownRequest : Entity
+{
+    public string Kind { get; set; } = string.Empty;
+    public object? Request { get; set; }
+}
+
+
+// WebhookLog
+public class WebhookLog : Entity
+{
+    public string Kind { get; set; } = string.Empty;
+    public string? Endpoint { get; set; }
+    public string? Url { get; set; }
+    public int? Code { get; set; }
+    public object? Data { get; set; }
+}
