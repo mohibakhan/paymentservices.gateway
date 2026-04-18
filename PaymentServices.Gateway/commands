@@ -1,17 +1,33 @@
-private static void SetupSerilog(IConfiguration config)
-{
-    Log.Logger = new LoggerConfiguration()
-        .MinimumLevel.Information()
-        .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
-        .MinimumLevel.Override("Microsoft.Azure.Functions.Worker", LogEventLevel.Warning)
-        .MinimumLevel.Override("Host", LogEventLevel.Warning)
-        .Enrich.FromLogContext()
-        .Enrich.WithProperty("Service", "PaymentServices.Gateway")
-        .Enrich.WithProperty("Environment",
-            Environment.GetEnvironmentVariable("AZURE_FUNCTIONS_ENVIRONMENT") ?? "Production")
-        .WriteTo.ApplicationInsights(
-            config["APPLICATIONINSIGHTS_CONNECTION_STRING"] 
-                ?? $"InstrumentationKey={config["APPINSIGHTS_INSTRUMENTATIONKEY"]}",
-            TelemetryConverter.Traces)
-        .CreateLogger();
-}
+curl -X POST http://localhost:7071/api/tptch/send \
+  -H "Content-Type: application/json" \
+  -H "x-functions-key: <your-local-function-key>" \
+  -d '{
+    "evolveId": "test-evolve-001",
+    "fintechId": "<your-fintech-id>",
+    "amount": "100.00",
+    "taxId": "123456789",
+    "userIsBusiness": false,
+    "sourceAccount": {
+      "accountNumber": "12345678",
+      "routingNumber": "084009593",
+      "name": {
+        "first": "John",
+        "last": "Doe"
+      }
+    },
+    "destinationAccount": {
+      "accountNumber": "87654321",
+      "routingNumber": "084009593",
+      "name": {
+        "first": "Jane",
+        "last": "Doe"
+      },
+      "address": {
+        "addressLines": ["123 Main St"],
+        "city": "Memphis",
+        "stateCode": "TN",
+        "postalCode": "38119",
+        "countryISOCode": "US"
+      }
+    }
+  }'
