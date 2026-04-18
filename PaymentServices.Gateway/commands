@@ -5,24 +5,28 @@ cd PaymentServices.Gateway
 # 2. Create solution
 dotnet new sln -n PaymentServices.Gateway
 
-# 3. Create the Function App project
+# 3. Create a worker service project (closest built-in template)
 mkdir src
 cd src
-dotnet new func --worker-runtime dotnet-isolated --target-framework net10.0 -n PaymentServices.Gateway
+dotnet new worker -n PaymentServices.Gateway -f net10.0
 cd ..
 
-# 4. Add project to solution
+# 4. Add to solution
 dotnet sln add src/PaymentServices.Gateway.csproj
 
 # 5. Create folder structure
 cd src
-mkdir Functions
-mkdir Services
-mkdir Models
-mkdir Validators
-mkdir Extensions
+mkdir Functions Services Models Validators Extensions
+cd ..
 
-# 6. Add NuGet packages
+# 6. Create deploy_parameters and pipelines folders
+mkdir -p deploy_parameters/DEV
+mkdir -p deploy_parameters/QA
+mkdir -p deploy_parameters/PROD
+mkdir -p pipelines
+
+# 7. Add packages
+cd src
 dotnet add package Microsoft.Azure.Functions.Worker --version 2.0.0
 dotnet add package Microsoft.Azure.Functions.Worker.Sdk --version 2.0.0
 dotnet add package Microsoft.Azure.Functions.Worker.Extensions.Http --version 3.3.0
@@ -39,26 +43,7 @@ dotnet add package Serilog.Sinks.ApplicationInsights --version 4.0.0
 dotnet add package FluentValidation --version 11.11.0
 dotnet add package FluentValidation.DependencyInjectionExtensions --version 11.11.0
 
-# 7. Add PaymentServices.Shared — use local reference during development
-# before it is published to Azure Artifacts
+# 8. Local project reference to Shared during development
 dotnet add reference ../../PaymentServices.Shared/src/PaymentServices.Shared.csproj
 
-# Once published to Azure Artifacts, switch to NuGet reference instead:
-# dotnet add package PaymentServices.Shared --version 1.0.*
-
-# 8. Create deploy_parameters folder structure
 cd ..
-mkdir -p deploy_parameters/DEV
-mkdir -p deploy_parameters/QA
-mkdir -p deploy_parameters/PROD
-mkdir -p pipelines
-
-# Install Azure Functions Core Tools first
-npm install -g azure-functions-core-tools@4 --unsafe-perm true
-
-# Or on Mac with Homebrew
-brew tap azure/functions
-brew install azure-functions-core-tools@4
-
-# 9. Verify build
-cd src && dotnet restore && dotnet build
