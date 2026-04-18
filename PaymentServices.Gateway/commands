@@ -1,3 +1,5 @@
+
+
 Azure Functions Core Tools
 Core Tools Version:       4.9.0+29aeab590e6c229a1a6631f6653df70f150f9f0e (64-bit)
 Function Runtime Version: 4.1047.100.26071
@@ -71,3 +73,5 @@ Function Runtime Version: 4.1047.100.26071
 [2026-04-18T15:21:51.011Z] Starting host metrics provider.
 [2026-04-18T15:21:51.171Z] Stopping host...
 [2026-04-18T15:21:51.175Z] Host shutdown completed.
+Value cannot be null. (Parameter 'provider')
+Press any key to continue....
