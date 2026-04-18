@@ -53,5 +53,12 @@ mkdir -p deploy_parameters/QA
 mkdir -p deploy_parameters/PROD
 mkdir -p pipelines
 
+# Install Azure Functions Core Tools first
+npm install -g azure-functions-core-tools@4 --unsafe-perm true
+
+# Or on Mac with Homebrew
+brew tap azure/functions
+brew install azure-functions-core-tools@4
+
 # 9. Verify build
 cd src && dotnet restore && dotnet build
