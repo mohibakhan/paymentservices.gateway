@@ -1,14 +1,73 @@
-private static void SetupSerilog(IConfiguration config)
-{
-    Log.Logger = new LoggerConfiguration()
-        .MinimumLevel.Information()
-        .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
-        .MinimumLevel.Override("Microsoft.Azure.Functions.Worker", LogEventLevel.Warning)
-        .MinimumLevel.Override("Host", LogEventLevel.Warning)
-        .Enrich.FromLogContext()
-        .Enrich.WithProperty("Service", "PaymentServices.Gateway")
-        .Enrich.WithProperty("Environment", 
-            Environment.GetEnvironmentVariable("AZURE_FUNCTIONS_ENVIRONMENT") ?? "Production")
-        .WriteTo.Console()
-        .CreateLogger();
-}
+Azure Functions Core Tools
+Core Tools Version:       4.9.0+29aeab590e6c229a1a6631f6653df70f150f9f0e (64-bit)
+Function Runtime Version: 4.1047.100.26071
+
+[2026-04-18T15:21:50.370Z] Found C:\Users\mxk221019\MyRepos\PaymentServices.Gateway\src\PaymentServices.Gateway.csproj. Using for user secrets file configuration.
+[2026-04-18T15:21:50.803Z] Building host: version spec: , startup suppressed: 'False', configuration suppressed: 'False', startup operation id: '5a668559-6d7b-4afb-ad88-48680a8fd396'
+[2026-04-18T15:21:50.812Z] Reading host configuration file 'C:\Users\mxk221019\MyRepos\PaymentServices.Gateway\src\bin\Debug\net10.0\host.json'
+[2026-04-18T15:21:50.814Z] Host configuration file read:
+[2026-04-18T15:21:50.815Z] {
+[2026-04-18T15:21:50.815Z]   "version": "2.0",
+[2026-04-18T15:21:50.816Z]   "logging": {
+[2026-04-18T15:21:50.817Z]     "applicationInsights": {
+[2026-04-18T15:21:50.817Z]       "samplingSettings": {
+[2026-04-18T15:21:50.818Z]         "isEnabled": true,
+[2026-04-18T15:21:50.819Z]         "excludedTypes": "Request"
+[2026-04-18T15:21:50.820Z]       },
+[2026-04-18T15:21:50.820Z]       "enableLivMetricsFilters": true
+[2026-04-18T15:21:50.821Z]     },
+[2026-04-18T15:21:50.822Z]     "logLevel": {
+[2026-04-18T15:21:50.822Z]       "default": "Information",
+[2026-04-18T15:21:50.823Z]       "Host": "Warning",
+[2026-04-18T15:21:50.824Z]       "Function": "Information",
+[2026-04-18T15:21:50.824Z]       "Host.Aggregator": "Trace"
+[2026-04-18T15:21:50.825Z]     }
+[2026-04-18T15:21:50.826Z]   },
+[2026-04-18T15:21:50.827Z]   "extensions": {
+[2026-04-18T15:21:50.827Z]     "serviceBus": {
+[2026-04-18T15:21:50.828Z]       "prefetchCount": 0,
+[2026-04-18T15:21:50.829Z]       "messageHandlerOptions": {
+[2026-04-18T15:21:50.830Z]         "autoComplete": true,
+[2026-04-18T15:21:50.830Z]         "maxConcurrentCalls": 16,
+[2026-04-18T15:21:50.831Z]         "maxAutoRenewDuration": "00:05:00"
+[2026-04-18T15:21:50.832Z]       }
+[2026-04-18T15:21:50.833Z]     }
+[2026-04-18T15:21:50.834Z]   }
+[2026-04-18T15:21:50.834Z] }
+[2026-04-18T15:21:50.862Z] Extension Bundle not loaded. Loading extensions from C:\Users\mxk221019\MyRepos\PaymentServices.Gateway\src\bin\Debug\net10.0. BundleConfigured: False, PrecompiledFunctionApp: False, LegacyBundle: False, DotnetIsolatedApp: True, isLogicApp: False
+[2026-04-18T15:21:50.864Z] Script Startup resetting load context with base path: 'C:\Users\mxk221019\MyRepos\PaymentServices.Gateway\src\bin\Debug\net10.0\.azurefunctions'.
+[2026-04-18T15:21:50.876Z] Loading startup extension 'Startup'
+[2026-04-18T15:21:50.911Z] Loaded extension 'Startup' (1.0.0.0)
+[2026-04-18T15:21:50.941Z] Reading host configuration file 'C:\Users\mxk221019\MyRepos\PaymentServices.Gateway\src\bin\Debug\net10.0\host.json'
+[2026-04-18T15:21:50.942Z] Host configuration file read:
+[2026-04-18T15:21:50.943Z] {
+[2026-04-18T15:21:50.944Z]   "version": "2.0",
+[2026-04-18T15:21:50.944Z]   "logging": {
+[2026-04-18T15:21:50.945Z]     "applicationInsights": {
+[2026-04-18T15:21:50.946Z]       "samplingSettings": {
+[2026-04-18T15:21:50.946Z]         "isEnabled": true,
+[2026-04-18T15:21:50.947Z]         "excludedTypes": "Request"
+[2026-04-18T15:21:50.948Z]       },
+[2026-04-18T15:21:50.949Z]       "enableLivMetricsFilters": true
+[2026-04-18T15:21:50.949Z]     },
+[2026-04-18T15:21:50.950Z]     "logLevel": {
+[2026-04-18T15:21:50.951Z]       "default": "Information",
+[2026-04-18T15:21:50.951Z]       "Host": "Warning",
+[2026-04-18T15:21:50.952Z]       "Function": "Information",
+[2026-04-18T15:21:50.953Z]       "Host.Aggregator": "Trace"
+[2026-04-18T15:21:50.954Z]     }
+[2026-04-18T15:21:50.954Z]   },
+[2026-04-18T15:21:50.955Z]   "extensions": {
+[2026-04-18T15:21:50.956Z]     "serviceBus": {
+[2026-04-18T15:21:50.957Z]       "prefetchCount": 0,
+[2026-04-18T15:21:50.957Z]       "messageHandlerOptions": {
+[2026-04-18T15:21:50.958Z]         "autoComplete": true,
+[2026-04-18T15:21:50.959Z]         "maxConcurrentCalls": 16,
+[2026-04-18T15:21:50.960Z]         "maxAutoRenewDuration": "00:05:00"
+[2026-04-18T15:21:50.961Z]       }
+[2026-04-18T15:21:50.961Z]     }
+[2026-04-18T15:21:50.962Z]   }
+[2026-04-18T15:21:50.963Z] }
+[2026-04-18T15:21:51.011Z] Starting host metrics provider.
+[2026-04-18T15:21:51.171Z] Stopping host...
+[2026-04-18T15:21:51.175Z] Host shutdown completed.
