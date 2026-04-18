@@ -1,9 +1,3 @@
-<ItemGroup>
-  <None Update="host.json">
-    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-  </None>
-  <None Update="local.settings.json">
-    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    <CopyToPublishDirectory>Never</CopyToPublishDirectory>
-  </None>
-</ItemGroup>
+Version conflict detected for Microsoft.ApplicationInsights. Install/reference Microsoft.ApplicationInsights 3.1.0 directly to project PaymentServices.Gateway to resolve this issue. 
+ PaymentServices.Gateway -> Microsoft.ApplicationInsights.WorkerService 3.1.0 -> Microsoft.ApplicationInsights (>= 3.1.0) 
+ PaymentServices.Gateway -> Serilog.Sinks.ApplicationInsights 5.0.1 -> Microsoft.ApplicationInsights (>= 2.23.0 && < 3.0.0).
