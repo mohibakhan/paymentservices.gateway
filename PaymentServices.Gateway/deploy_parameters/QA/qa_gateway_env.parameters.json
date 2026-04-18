@@ -1,0 +1,47 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "functionAppName": {
+      "value": "PaymentServicesGateway-QA"
+    },
+    "location": {
+      "value": "eastus"
+    },
+    "appServicePlanName": {
+      "value": "payment-services-plan-qa"
+    },
+    "storageAccountName": {
+      "value": "pmtsvcgatewayqast"
+    },
+    "appInsightsName": {
+      "value": "payment-services-gateway-qa-ai"
+    },
+    "appConfigEndpoint": {
+      "value": "https://payment-services-config-qa.azconfig.io"
+    },
+    "managedIdentityClientId": {
+      "value": "<qa-managed-identity-client-id>"
+    },
+    "cosmosEndpoint": {
+      "value": "https://payment-services-cosmos-qa.documents.azure.com:443/"
+    },
+    "cosmosDatabase": {
+      "value": "payments"
+    },
+    "serviceBusTopic": {
+      "value": "payment-processing"
+    },
+    "environment": {
+      "value": "QA"
+    },
+    "tags": {
+      "value": {
+        "Environment": "QA",
+        "Service": "PaymentServices.Gateway",
+        "Team": "Services",
+        "Train": "Digital"
+      }
+    }
+  }
+}

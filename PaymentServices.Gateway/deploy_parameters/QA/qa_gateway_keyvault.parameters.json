@@ -1,0 +1,20 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "keyVaultName": {
+      "value": "payment-svc-gateway-qa-kv"
+    },
+    "keyVaultResourceGroup": {
+      "value": "payment-services-qa-rg"
+    },
+    "secrets": {
+      "value": {
+        "CosmosConnString": "<reference-to-keyvault-secret>",
+        "ServiceBusConnString": "<reference-to-keyvault-secret>",
+        "AllowedFintechIds": "<reference-to-keyvault-secret>",
+        "SourceAccountNumberPrefixes": "<reference-to-keyvault-secret>"
+      }
+    }
+  }
+}
