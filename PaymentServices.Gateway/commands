@@ -1,6 +1,5 @@
-services.AddCosmosContainer(config, 
-    config["app:AppSettings:COSMOS_TRANSACTIONS_CONTAINER"] ?? "tchSendTransactions", 
-    "transactions");
-services.AddCosmosContainer(config, 
-    config["app:AppSettings:COSMOS_IDEMPOTENCY_CONTAINER"] ?? "tchSendIdempotency", 
-    "idempotency");
+account-resolutionstate = 'AccountResolutionPending'
+kyc-checkstate = 'KycPending'
+tms-checkstate = 'TmsPending'
+transferstate = 'TmsCompleted'
+event-notificationstate = 'TransferCompleted' OR state = 'AccountResolutionFailed' OR state = 'KycFailed' OR state = 'KycManualReview' OR state = 'TmsComplianceAlert' OR state = 'TmsFailed' OR state = 'TransferFailed'
