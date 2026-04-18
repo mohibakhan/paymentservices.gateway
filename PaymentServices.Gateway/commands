@@ -1,3 +1,5 @@
+1>C:\Users\mxk221019\MyRepos\PaymentServices.Gateway\src\PaymentServices.Gateway.csproj : warning NU1608: Detected package version outside of dependency constraint: Serilog.Sinks.ApplicationInsights 5.0.1 requires Microsoft.ApplicationInsights (>= 2.23.0 && < 3.0.0) but version Microsoft.ApplicationInsights 3.1.0 was resolved.
+
 <Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
@@ -14,32 +16,32 @@
 
 	<ItemGroup>
 		<!-- Azure Functions -->
-		<PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.0.0" />
-		<PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.0" />
+		<PackageReference Include="Microsoft.Azure.Functions.Worker" Version="2.51.0" />
+		<PackageReference Include="Microsoft.Azure.Functions.Worker.Sdk" Version="2.0.7" />
 		<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http" Version="3.3.0" />
-		<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="2.0.0" />
+		<PackageReference Include="Microsoft.Azure.Functions.Worker.Extensions.Http.AspNetCore" Version="2.1.0" />
 
 		<!-- Azure App Configuration + Key Vault -->
-		<PackageReference Include="Microsoft.Extensions.Configuration.AzureAppConfiguration" Version="8.0.0" />
-		<PackageReference Include="Azure.Identity" Version="1.13.2" />
+		<PackageReference Include="Microsoft.Extensions.Configuration.AzureAppConfiguration" Version="8.5.0" />
+		<PackageReference Include="Azure.Identity" Version="1.21.0" />
 
 		<!-- Cosmos DB -->
-		<PackageReference Include="Microsoft.Azure.Cosmos" Version="3.46.0" />
+		<PackageReference Include="Microsoft.Azure.Cosmos" Version="3.58.0" />
 
 		<!-- Service Bus -->
-		<PackageReference Include="Azure.Messaging.ServiceBus" Version="7.18.4" />
+		<PackageReference Include="Azure.Messaging.ServiceBus" Version="7.20.1" />
 
 		<!-- Application Insights + Serilog -->
-<PackageReference Include="Microsoft.ApplicationInsights" Version="2.22.0" />
-<PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="2.22.0" />
-<PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="1.4.0" />
-<PackageReference Include="Serilog" Version="4.2.0" />
-<PackageReference Include="Serilog.Extensions.Hosting" Version="9.0.0" />
-<PackageReference Include="Serilog.Sinks.ApplicationInsights" Version="4.0.0" />
+		<PackageReference Include="Microsoft.ApplicationInsights" Version="3.1.0" />
+		<PackageReference Include="Microsoft.ApplicationInsights.WorkerService" Version="3.1.0" />
+		<PackageReference Include="Microsoft.Azure.Functions.Worker.ApplicationInsights" Version="2.50.0" />
+		<PackageReference Include="Serilog" Version="4.3.1" />
+		<PackageReference Include="Serilog.Extensions.Hosting" Version="10.0.0" />
+		<PackageReference Include="Serilog.Sinks.ApplicationInsights" Version="5.0.1" />
 
 		<!-- Validation -->
-		<PackageReference Include="FluentValidation" Version="11.11.0" />
-		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.11.0" />
+		<PackageReference Include="FluentValidation" Version="12.1.1" />
+		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.1.1" />
 
 		<!-- Shared contracts -->
 		<PackageReference Include="PaymentServices.Shared" Version="1.0.1" />
