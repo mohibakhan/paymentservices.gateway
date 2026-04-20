@@ -62,13 +62,16 @@ public sealed class IdempotencyService : IIdempotencyService
             return false; // New request — not a duplicate
         }
         catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Conflict)
-        {
-            // 409 = record already exists = duplicate request
-            _logger.LogWarning(
-                "Duplicate request detected. EvolveId={EvolveId} CorrelationId={CorrelationId}",
-                evolveId, correlationId);
+{
+    // Optionally fetch original to log its correlationId
+    var original = await _container.ReadItemAsync<CosmosIdempotency>(
+        evolveId, new PartitionKey(evolveId), cancellationToken: cancellationToken);
 
-            return true;
-        }
+    _logger.LogWarning(
+        "Duplicate detected. EvolveId={EvolveId} OriginalCorrelationId={OriginalId} DuplicateCorrelationId={DuplicateId}",
+        evolveId, original.Resource.CorrelationId, correlationId);
+
+    return true;
+}
     }
 }
