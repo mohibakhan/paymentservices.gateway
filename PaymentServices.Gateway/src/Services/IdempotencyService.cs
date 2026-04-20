@@ -1,7 +1,5 @@
 using Microsoft.Azure.Cosmos;
 using Microsoft.Extensions.Logging;
-using PaymentServices.Shared.Infrastructure;
-using PaymentServices.Shared.Interfaces;
 using PaymentServices.Shared.Models;
 
 namespace PaymentServices.Gateway.Services;
@@ -11,20 +9,27 @@ public interface IIdempotencyService
     /// <summary>
     /// Returns true if this evolveId has already been processed (duplicate).
     /// Returns false and records the evolveId if it is new.
+    ///
+    /// Uses a single conditional CreateItemAsync instead of read-then-write.
+    /// A 409 Conflict response from Cosmos means the record already exists.
+    /// This halves the number of Cosmos round trips per payment at the Gateway.
     /// </summary>
-    Task<bool> IsDuplicateAsync(string evolveId, string correlationId, CancellationToken cancellationToken = default);
+    Task<bool> IsDuplicateAsync(
+        string evolveId,
+        string correlationId,
+        CancellationToken cancellationToken = default);
 }
 
 public sealed class IdempotencyService : IIdempotencyService
 {
-    private readonly ICosmosRepository<CosmosIdempotency> _repository;
+    private readonly Container _container;
     private readonly ILogger<IdempotencyService> _logger;
 
     public IdempotencyService(
         [FromKeyedServices("idempotency")] Container container,
         ILogger<IdempotencyService> logger)
     {
-        _repository = new CosmosRepository<CosmosIdempotency>(container);
+        _container = container;
         _logger = logger;
     }
 
@@ -33,17 +38,6 @@ public sealed class IdempotencyService : IIdempotencyService
         string correlationId,
         CancellationToken cancellationToken = default)
     {
-        // Check if this evolveId already exists
-        var existing = await _repository.GetAsync(evolveId, evolveId, cancellationToken);
-        if (existing is not null)
-        {
-            _logger.LogWarning(
-                "Duplicate request detected for EvolveId={EvolveId} CorrelationId={CorrelationId}",
-                evolveId, correlationId);
-            return true;
-        }
-
-        // Record this evolveId to prevent future duplicates
         var idempotencyRecord = new CosmosIdempotency
         {
             Id = evolveId,
@@ -53,11 +47,28 @@ public sealed class IdempotencyService : IIdempotencyService
             Ttl = 86400 // 24 hours
         };
 
-        await _repository.CreateAsync(idempotencyRecord, evolveId, cancellationToken);
+        try
+        {
+            // Single Cosmos operation — attempt to create.
+            // If the record already exists Cosmos returns 409 Conflict.
+            await _container.CreateItemAsync(
+                idempotencyRecord,
+                new PartitionKey(evolveId),
+                cancellationToken: cancellationToken);
 
-        _logger.LogInformation(
-            "Idempotency record created for EvolveId={EvolveId}", evolveId);
+            _logger.LogInformation(
+                "Idempotency record created. EvolveId={EvolveId}", evolveId);
 
-        return false;
+            return false; // New request — not a duplicate
+        }
+        catch (CosmosException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Conflict)
+        {
+            // 409 = record already exists = duplicate request
+            _logger.LogWarning(
+                "Duplicate request detected. EvolveId={EvolveId} CorrelationId={CorrelationId}",
+                evolveId, correlationId);
+
+            return true;
+        }
     }
 }
