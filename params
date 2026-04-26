@@ -1,0 +1,22 @@
+{
+  "telemetry:APP_INSIGHTS-CUSTOM_PROP_EVOLVE_TRAIN": "Digital",
+  "telemetry:APP_INSIGHTS-CUSTOM_PROP_EVOLVE_TEAM": "Services",
+  "gateway:AppSettings:COSMOS_DATABASE": "tptch",
+  "gateway:AppSettings:COSMOS_IDEMPOTENCY_CONTAINER": "tchSendIdempotency",
+  "gateway:AppSettings:COSMOS_TRANSACTIONS_CONTAINER": "tchSendTransactions",
+  "gateway:AppSettings:SERVICE_BUS_TOPIC": "payment-processing",
+  "gateway:AppSettings:ALLOWED_FINTECH_IDS": "fintech-test-001",
+  "gateway:AppSettings:SOURCE_ACCOUNT_NUMBER_PREFIXES": "1234,9876"
+}
+
+{
+  "gateway:AppSettings:COSMOS_CONNSTRING": {
+    "uri": "https://kv-pmtsvc-dev-centralus.vault.azure.net/secrets/GATEWAY-COSMOS-CONNSTRING"
+  },
+  "gateway:AppSettings:COSMOS_ENDPOINT": {
+    "uri": "https://kv-pmtsvc-dev-centralus.vault.azure.net/secrets/GATEWAY-COSMOS-ENDPOINT"
+  },
+  "gateway:AppSettings:SERVICE_BUS_CONNSTRING": {
+    "uri": "https://kv-pmtsvc-dev-centralus.vault.azure.net/secrets/GATEWAY-SERVICE-BUS-CONNSTRING"
+  }
+}
