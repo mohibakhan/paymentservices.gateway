@@ -18,6 +18,8 @@ namespace PaymentServices.Gateway;
 [ExcludeFromCodeCoverage]
 public static class Program
 {
+    private const string Prefix = "gateway:AppSettings";
+
     public static async Task Main(string[] args)
     {
         var host = new HostBuilder()
@@ -34,22 +36,24 @@ public static class Program
                 services.ConfigureFunctionsApplicationInsights();
 
                 // Shared infrastructure — Cosmos, Service Bus, AppSettings
-                services.AddPaymentAppSettings(config);
-                services.AddPaymentCosmosClient(config, "gateway:AppSettings");
-                services.AddPaymentServiceBusPublisher(config);
+                services.AddPaymentAppSettings(config, Prefix);
+                services.AddPaymentCosmosClient(config, Prefix);
+                services.AddPaymentServiceBusPublisher(config, Prefix);
 
                 // Cosmos containers needed by Gateway
                 services.AddCosmosContainer(config,
-                    config["gateway:AppSettings:COSMOS_TRANSACTIONS_CONTAINER"] ?? "tchSendTransactions",
-                    "transactions");
+                    config[$"{Prefix}:COSMOS_TRANSACTIONS_CONTAINER"] ?? "tchSendTransactions",
+                    "transactions",
+                    Prefix);
                 services.AddCosmosContainer(config,
-                    config["gateway:AppSettings:COSMOS_IDEMPOTENCY_CONTAINER"] ?? "tchSendIdempotency",
-                    "idempotency");
+                    config[$"{Prefix}:COSMOS_IDEMPOTENCY_CONTAINER"] ?? "tchSendIdempotency",
+                    "idempotency",
+                    Prefix);
 
                 // Gateway-specific settings
                 services.AddOptions<GatewaySettings>()
                     .Configure<IConfiguration>((settings, cfg) =>
-                        cfg.GetSection("gateway:AppSettings").Bind(settings));
+                        cfg.GetSection(Prefix).Bind(settings));
 
                 // Gateway services
                 services.AddTransient<IIdempotencyService, IdempotencyService>();
@@ -58,7 +62,7 @@ public static class Program
                 // FluentValidation
                 services.AddValidatorsFromAssemblyContaining<TchSendRequestValidator>();
 
-                // HTTP client factory (for any outbound calls)
+                // HTTP client factory
                 services.AddHttpClient();
                 services.AddHttpContextAccessor();
 
@@ -67,8 +71,6 @@ public static class Program
             })
             .ConfigureLogging((context, logging) =>
             {
-                // Remove default Application Insights logging rule to
-                // allow Serilog to control the pipeline
                 logging.Services.Configure<LoggerFilterOptions>(options =>
                 {
                     var defaultRule = options.Rules.FirstOrDefault(rule =>
@@ -86,10 +88,8 @@ public static class Program
         await host.RunAsync();
     }
 
-    // App Configuration — Managed Identity in Azure, local.settings.json locally
     private static void SetupAppConfiguration(IConfigurationBuilder builder)
     {
-        // Pull environment variables first — needed to read AppConfig endpoint
         builder.AddEnvironmentVariables();
         var settings = builder.Build();
 
@@ -98,7 +98,6 @@ public static class Program
 
         if (!string.IsNullOrWhiteSpace(appConfigUrl) && !string.IsNullOrWhiteSpace(azureClientId))
         {
-            // User-assigned Managed Identity
             var credentialOptions = new DefaultAzureCredentialOptions
             {
                 ManagedIdentityClientId = azureClientId
@@ -115,13 +114,11 @@ public static class Program
             });
         }
 
-        // Local development fallback
         builder
             .SetBasePath(Environment.CurrentDirectory)
             .AddJsonFile("local.settings.json", optional: true, reloadOnChange: false);
     }
 
-    // Serilog — Application Insights sink
     private static void SetupSerilog(IConfiguration config)
     {
         Log.Logger = new LoggerConfiguration()
