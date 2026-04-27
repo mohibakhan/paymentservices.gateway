@@ -35,20 +35,23 @@ public static class Program
 
                 // Shared infrastructure — Cosmos, Service Bus, AppSettings
                 services.AddPaymentAppSettings(config);
-                services.AddPaymentCosmosClient(config);
+                services.AddPaymentCosmosClient(config, "gateway:AppSettings");
                 services.AddPaymentServiceBusPublisher(config);
 
                 // Cosmos containers needed by Gateway
-                services.AddCosmosContainer(config, "tch-send-transactions", "transactions");
-                services.AddCosmosContainer(config, "tch-send-idempotency", "idempotency");
+                services.AddCosmosContainer(config,
+                    config["gateway:AppSettings:COSMOS_TRANSACTIONS_CONTAINER"] ?? "tchSendTransactions",
+                    "transactions");
+                services.AddCosmosContainer(config,
+                    config["gateway:AppSettings:COSMOS_IDEMPOTENCY_CONTAINER"] ?? "tchSendIdempotency",
+                    "idempotency");
 
                 // Gateway-specific settings
                 services.AddOptions<GatewaySettings>()
                     .Configure<IConfiguration>((settings, cfg) =>
-                        cfg.GetSection("app:AppSettings").Bind(settings));
+                        cfg.GetSection("gateway:AppSettings").Bind(settings));
 
                 // Gateway services
-                services.AddTransient<IPayloadValidationService, PayloadValidationService>();
                 services.AddTransient<IIdempotencyService, IdempotencyService>();
                 services.AddTransient<IGatewayService, GatewayService>();
 
@@ -83,9 +86,7 @@ public static class Program
         await host.RunAsync();
     }
 
-    // -------------------------------------------------------------------------
     // App Configuration — Managed Identity in Azure, local.settings.json locally
-    // -------------------------------------------------------------------------
     private static void SetupAppConfiguration(IConfigurationBuilder builder)
     {
         // Pull environment variables first — needed to read AppConfig endpoint
@@ -108,7 +109,7 @@ public static class Program
             {
                 options
                     .Connect(new Uri(appConfigUrl), credential)
-                    .Select("app:*")
+                    .Select("gateway:*")
                     .Select("telemetry:*")
                     .ConfigureKeyVault(kv => kv.SetCredential(credential));
             });
@@ -120,14 +121,9 @@ public static class Program
             .AddJsonFile("local.settings.json", optional: true, reloadOnChange: false);
     }
 
-    // -------------------------------------------------------------------------
     // Serilog — Application Insights sink
-    // -------------------------------------------------------------------------
     private static void SetupSerilog(IConfiguration config)
     {
-        var instrumentationKey = config["APPINSIGHTS_INSTRUMENTATIONKEY"] ?? string.Empty;
-        var connectionString = config["APPLICATIONINSIGHTS_CONNECTION_STRING"] ?? string.Empty;
-
         Log.Logger = new LoggerConfiguration()
             .MinimumLevel.Information()
             .MinimumLevel.Override("Microsoft", LogEventLevel.Warning)
@@ -135,12 +131,12 @@ public static class Program
             .MinimumLevel.Override("Host", LogEventLevel.Warning)
             .Enrich.FromLogContext()
             .Enrich.WithProperty("Service", "PaymentServices.Gateway")
-            .Enrich.WithProperty("Environment", Environment.GetEnvironmentVariable("AZURE_FUNCTIONS_ENVIRONMENT") ?? "Production")
+            .Enrich.WithProperty("Environment",
+                Environment.GetEnvironmentVariable("AZURE_FUNCTIONS_ENVIRONMENT") ?? "Production")
             .WriteTo.ApplicationInsights(
-                connectionString: string.IsNullOrWhiteSpace(connectionString)
-                    ? $"InstrumentationKey={instrumentationKey}"
-                    : connectionString,
-                telemetryConverter: TelemetryConverter.Traces)
+                config["APPLICATIONINSIGHTS_CONNECTION_STRING"]
+                    ?? $"InstrumentationKey={config["APPINSIGHTS_INSTRUMENTATIONKEY"]}",
+                TelemetryConverter.Traces)
             .CreateLogger();
     }
 }
